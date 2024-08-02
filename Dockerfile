@@ -18,3 +18,5 @@ RUN git clone -b v5.2.1 --recursive https://github.com/espressif/esp-idf.git && 
     bash -c '. /tools/esp-idf/export.sh; ln -s $(which qemu-system-xtensa) /usr/bin/qemu-system-xtensa'
 
 COPY --from=builder /tpp-physim/target/release/tpp-physim /usr/bin/tpp-physim
+
+CMD ["sh", "-c", "/usr/bin/tpp-physim"]

@@ -23,5 +23,7 @@ pub async fn run(address: &str) {
         .with_state(AppState::default());
 
     let listener = tokio::net::TcpListener::bind(address).await.unwrap();
+
+    println!("PHYSIM listening at {address}");
     axum::serve(listener, app).await.unwrap();
 }
