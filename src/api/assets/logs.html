@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      html {
+        font-family: sans-serif;
+      }
+
+      .container {
+        display: flex;
+        flex-direction: column;
+        width: 75vw;
+        margin: auto;
+        height: 90vh;
+      }
+
+      .input-bar {
+        text-align: center;
+        margin: 16px 0;
+        display: flex;
+        justify-content: space-evenly;
+      }
+
+      #table-container {
+        height: 100%;
+        font-family: monospace;
+        overflow: auto;
+        background: #eee;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="input-bar">
+        <form onsubmit="return false">
+          <input id="device-id" type="text" placeholder="ID de dispositivo" />
+
+          <button onclick="connect()">Ver logs</button>
+        </form>
+        <label
+          ><input id="auto-scroll" type="checkbox" checked /> Auto scroll</label
+        >
+      </div>
+      <div id="table-container">
+        <table>
+          <tbody id="logs-container"></tbody>
+        </table>
+      </div>
+    </div>
+    <script>
+      function connect(e) {
+        e && e.preventDefault();
+
+        const tableContainer = document.getElementById("table-container");
+        const logsContainer = document.getElementById("logs-container");
+        const deviceId = document.getElementById("device-id").value;
+        const isAutoScrollEnabled = () =>
+          !!document.getElementById("auto-scroll").checked;
+        logsContainer.innerHTML = "";
+        if (parseInt(deviceId) >= 0) {
+          let socket = new WebSocket(`ws://localhost:13013/logs/${deviceId}`);
+
+          socket.onopen = () => {
+            const tr = document.createElement("tr");
+            const td = document.createElement("td");
+            td.innerText = "CONNECTED";
+            tr.appendChild(td);
+            logsContainer.appendChild(tr);
+          };
+
+          socket.onmessage = function (event) {
+            const tr = document.createElement("tr");
+            const td = document.createElement("td");
+            td.innerText = event.data.replace(/(\x1B[^m]*m)/gm, "");
+            tr.appendChild(td);
+            logsContainer.appendChild(tr);
+
+            if (isAutoScrollEnabled()) tableContainer.scroll(0, 9999);
+          };
+
+          socket.onclose = function (event) {
+            const tr = document.createElement("tr");
+            const td = document.createElement("td");
+            td.innerText = "CONNECTION TO QEMU LOST";
+            tr.appendChild(td);
+            logsContainer.appendChild(tr);
+          };
+        }
+
+        return false;
+      }
+    </script>
+  </body>
+</html>
