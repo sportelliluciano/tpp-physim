@@ -1,4 +1,4 @@
-FROM rust:1.80-slim as builder
+FROM rust:1.80-slim AS builder
 
 WORKDIR /tpp-physim
 COPY . .

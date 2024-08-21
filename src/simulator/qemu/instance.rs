@@ -52,7 +52,7 @@ impl QemuInstance {
         println!("[HANDLER {}] Starting...", self.device.get_id());
 
         // QEMU will hold the instance until we connect to it.
-        let conn = TcpStream::connect(format!("0.0.0.0:{}", 9000 + self.device.get_id()))
+        let conn = TcpStream::connect(format!("127.0.0.1:{}", 9000 + self.device.get_id()))
             .await
             .unwrap();
 
@@ -62,6 +62,7 @@ impl QemuInstance {
 
     async fn qemu_process(id: u32, flash_image_path: String, logs: Arc<LogsService>) {
         let mut child = tokio::process::Command::new("qemu-system-xtensa")
+            .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
             .args([
